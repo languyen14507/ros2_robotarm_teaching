@@ -24,7 +24,7 @@ setup(
             'simple_subscriber = ros2_py_examples.simple_subscriber:main',
             'simple_parameter = ros2_py_examples.simple_parameter:main',
             'simple_service_server = ros2_py_examples.simple_service_server:main',
-            'simple_service_client = ros2_py_examples.simple_service_client:main'
+            'simple_service_client = ros2_py_examples.simple_service_client:main'           
         ],
     },
 )
