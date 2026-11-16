@@ -1,0 +1,554 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="lnfranka">
+    
+<!-- Include Gazebo Parameters -->
+    <xacro:include filename="$(find lnfranka_description)/urdf/lnfranka_gazebo.xacro" />
+
+    <!-- Include ros2_control Plugins -->
+    <xacro:include filename="$(find lnfranka_description)/urdf/lnfranka_ros2_control.xacro" />
+    
+    <!-- Useful XACRO Variables (Properties) -->
+    <xacro:property name="PI" value="3.14159265359" />
+    <xacro:property name="effort" value="30.0" />
+    <xacro:property name="velocity" value="10.0" />
+
+    <!-- Useful Macros -->
+    <xacro:macro name="default_inertial" params="mass">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="${mass}" />
+            <inertia ixx="1.0" ixy="0.0" ixz="0.0"
+                     iyy="1.0" iyz="0.0"
+                     izz="1.0" />
+        </inertial>
+    </xacro:macro>
+
+
+
+<xacro:macro name="default_transmission" params="number">
+        <transmission name="transmission_${number}">
+            <plugin>transmission_interface/SimpleTransmission</plugin>
+            <actuator name="motor_${number}" role="actuator1"/>
+            <joint name="joint_${number}"    role="joint1">
+                <mechanical_reduction>1.0</mechanical_reduction>
+            </joint>
+        </transmission>
+    </xacro:macro>
+
+    <xacro:property name="mesh_offset_rpy" value="0 0 0"/>
+
+    <!-- Links -->
+    <link name="world"/>
+
+    <link name="link0">
+        <!-- <xacro:default_inertial mass="1.0"/> -->
+        <inertial>
+          <origin xyz="-0.025566 -2.87883e-05 0.057332" rpy="${mesh_offset_rpy}"/>
+          <mass value="2.814271300104062"/>
+          <inertia ixx="0.0075390636364814695" iyy="0.010508017427382959" izz="0.009864933638708275" ixy="-1.5053124574783335e-05" ixz="-0.0012144328835738973" iyz="1.0434803501032979e-05"/>
+        </inertial>  
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://lnfranka_description/meshes/link0.dae" scale="1.0 1.0 1.0"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="-0.5 -0.5 0"/>
+            <geometry>
+                <mesh filename="package://lnfranka_description/meshes/link0.dae" scale="1.0 1.0 1.0"/>
+            </geometry>
+        </collision>
+    </link>
+
+
+    <joint name="virtual_joint" type="fixed">
+      <parent link="world"/>
+      <child link="link0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint> 
+
+    <link name="link1">
+        <!-- <xacro:default_inertial mass="0.1"/> -->
+        <inertial>
+          <origin rpy="0 0 0" xyz="-3.72212e-09 -0.0324958 -0.0675818"/>
+          <mass value="2.6433170427227215"/>
+          <inertia ixx="0.017405076982879724" ixy="-8.687986369621078e-09" ixz="-1.6277819062920423e-08" iyy="0.015352077935781732" iyz="0.004510855959102245" izz="0.005987891663073857"/>
+        </inertial>
+        <visual>
+            <!-- <origin rpy="0 0 0" xyz="-0.39 -0.39 -0.56"/> -->
+            <!-- <origin rpy="0 0 0" xyz="0 0 0"/> -->
+            <geometry>
+                <mesh filename="package://lnfranka_description/meshes/link1.dae" scale="1.0 1.0 1.0"/>
+            </geometry>
+        </visual>
+        <!-- <collision>
+            <origin rpy="0 0 0" xyz="-0.39 -0.39 -0.56"/>
+            <geometry>
+                <mesh filename="package://lnfranka_description/meshes/link1.dae" scale="1.0 1.0 1.0"/>
+            </geometry>
+        </collision> -->
+    </link>
+
+    <joint name="joint1" type="revolute">
+      <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-2.8973" soft_upper_limit="2.8973"/>
+      <origin rpy="0 0 0" xyz="0 0 0.333"/>
+      <parent link="link0"/>
+      <child link="link1"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="87" lower="-2.8973" upper="2.8973" velocity="2.1750"/>
+    </joint>
+
+    <link name="link2">
+      <!-- <xacro:default_inertial mass="0.1"/> -->
+      <inertial>
+        <origin rpy="0 0 0" xyz="3.17833e-07 -0.06861 0.0322285"/>
+        <mass value="2.6652755331661186"/>
+        <inertia ixx="0.01778694005635383" ixy="8.70635625879119e-08" ixz="3.752072058394008e-08" iyy="0.006044133867952844" iyz="-0.004599490295490376" izz="0.01571095500455695"/>
+      </inertial>
+      <visual>
+          <geometry>
+            <mesh filename="package://lnfranka_description/meshes/link2.dae" scale="1.0 1.0 1.0"/>
+          </geometry>
+        </visual>
+        <!-- <collision>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <geometry>
+            <cylinder radius="${0.06+0}" length="0.12" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 -0.06" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.06+0}" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 0.06" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.06+0}" />
+          </geometry>
+        </collision> -->
+      </link>
+
+    <joint name ="joint2" type="revolute">
+        <parent link="link1"/>
+        <child link = "link2"/>
+        <origin rpy="${-pi/2} 0 0" xyz="0 0 0"/>
+        <axis xyz="1 0 0"/>
+        <limit lower="-1.7628" upper="1.7628"
+               effort="${effort}" velocity="${velocity}"/>
+    </joint>
+
+      <link name="link3">
+        <!-- <xacro:default_inertial mass="0.1"/> -->
+        <inertial>
+          <origin rpy="0 0 0" xyz="0.0469893 0.0316374 -0.031704"/>
+          <mass value="2.3293714829045733"/>
+          <inertia ixx="0.0075496764161139766" ixy="-0.0024320464513492225" ixz="-0.003250815048103007" iyy="0.009680676080191398" iyz="-0.0021316282421730694" izz="0.007944557422008086"/>
+        </inertial>
+        <visual>
+          <geometry>
+            <mesh filename="package://lnfranka_description/meshes/link3.dae" scale="1.0 1.0 1.0"/>
+          </geometry>
+        </visual>
+        <!-- <collision>
+          <origin xyz="0 0 -0.145" rpy="0 0 0"/>
+          <geometry>
+            <cylinder radius="${0.06+0}" length="0.15" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 -0.22" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.06+0}" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 -0.07" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.06+0}" />
+          </geometry>
+        </collision> -->
+      </link>
+    
+      <joint name="joint3" type="revolute">
+        <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-2.8973" soft_upper_limit="2.8973"/>
+        <origin rpy="${pi/2} 0 0" xyz="0 -0.316 0"/>
+        <parent link="link2"/>
+        <child link="link3"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="87" lower="-2.8973" upper="2.8973" velocity="2.1750"/>
+      </joint>
+
+      <link name="link4">
+        <!-- <xacro:default_inertial mass="0.1"/> -->
+        <inertial>
+          <origin rpy="0 0 0" xyz="-0.0360505 0.0337069 0.0319019"/>
+          <mass value="2.3104763646281508"/>
+          <inertia ixx="0.007764568814864828" ixy="0.003371475204045935" ixz="-0.002343621113168248" iyy="0.008015776929980149" iyz="0.0022917526161470624" izz="0.009955882308071066"/>
+        </inertial>
+        <visual>
+          <geometry>
+            <mesh filename="package://lnfranka_description/meshes/link4.dae" scale="1.0 1.0 1.0"/>
+          </geometry>
+        </visual>
+        <!-- <collision>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <geometry>
+            <cylinder radius="${0.06+0}" length="0.12" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 0.06" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.06+0}" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 -0.06" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.06+0}" />
+          </geometry>
+        </collision> -->
+      </link>
+
+    <joint name ="joint4" type="revolute">
+        <parent link="link3"/>
+        <child link = "link4"/>
+        <origin rpy="${pi/2} 0 0" xyz="0.0825 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="-3.0718" upper="-0.0698" 
+               effort="${effort}" velocity="${velocity}"/>
+    </joint>
+
+    <link name="link5">
+      <!-- <xacro:default_inertial mass="0.1"/> -->
+      <inertial>
+        <origin rpy="0 0 0" xyz="-6.12525e-06 0.0610427 -0.104176"/>
+        <mass value="2.6226426154892004"/>
+        <inertia ixx="0.029070538014399377" ixy="6.208738268725568e-07" ixz="-1.0059151925023392e-05" iyy="0.027638529986528795" iyz="-0.007424306477850814" izz="0.004251111234400737"/>
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="package://lnfranka_description/meshes/link5.dae"/>
+        </geometry>
+      </visual>
+      <!-- <collision>
+        <origin xyz="0 0 -0.26" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${0.06+safety_distance}" length="0.1" />
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0 -0.31" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${0.06+safety_distance}" />
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0 -0.21" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${0.06+safety_distance}" />
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0.08 -0.13" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${0.025+safety_distance}" length="0.14" />
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0.08 -0.06" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${0.025+safety_distance}" />
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0.08 -0.20" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${0.025+safety_distance}" />
+        </geometry>
+      </collision> -->
+    </link>
+
+    <joint name="joint5" type="revolute">
+      <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-2.8973" soft_upper_limit="2.8973"/>
+      <origin rpy="${-pi/2} 0 0" xyz="-0.0825 0.384 0"/>
+      <parent link="link4"/>
+      <child link="link5"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="12" lower="-2.8973" upper="2.8973" velocity="2.6100"/>
+    </joint>
+
+    <link name="link6">
+      <!-- <xacro:default_inertial mass="0.1"/> -->
+      <inertial>
+        <origin rpy="0 0 0" xyz="0.051051 0.00910797 0.0106343"/>
+        <mass value="1.5025804886626795"/>
+        <inertia ixx="0.002940555801469018" ixy="-0.00042391108351381507" ixz="0.000610007735338717" iyy="0.00392105201248677" iyz="0.00012647545430836214" izz="0.0054115603870960195"/>
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="package://lnfranka_description/meshes/link6.dae"/>
+        </geometry>
+      </visual>
+      <!-- <collision>
+        <origin xyz="0 0 -0.03" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${0.05+safety_distance}" length="0.08" />
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0 0.01" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${0.05+safety_distance}" />
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0 -0.07" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${0.05+safety_distance}" />
+        </geometry>
+      </collision> -->
+    </link>
+
+    <joint name="joint6" type="revolute">
+      <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-0.0175" soft_upper_limit="3.7525"/>
+      <origin rpy="${pi/2} 0 0" xyz="0 0 0"/>
+      <parent link="link5"/>
+      <child link="link6"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="12" lower="-0.0175" upper="3.7525" velocity="2.6100"/>
+    </joint>
+
+    <link name="link7">
+      <!-- <xacro:default_inertial mass="0.1"/> -->
+      <inertial>
+        <origin rpy="0 0 0" xyz="0.0109695 0.0107965 0.0650412"/>
+        <mass value="0.5237668134788256"/>
+        <inertia ixx="0.0008621467959726535" ixy="-0.00011871071570425467" ixz="3.866602604509339e-05" iyy="0.0008613100184801048" iyz="-9.057841649422724e-05" izz="0.0006961139396618219"/>
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="package://lnfranka_description/meshes/link7.dae"/>
+        </geometry>
+      </visual>
+      <!-- <collision>
+        <origin xyz="0 0 0.01" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${0.04+safety_distance}" length="0.14" />
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0 0.08" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${0.04+safety_distance}"  />
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0 -0.06" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${0.04+safety_distance}"  />
+        </geometry>
+      </collision> -->
+    </link>
+
+    <joint name="joint7" type="revolute">
+      <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-2.8973" soft_upper_limit="2.8973"/>
+      <origin rpy="${pi/2} 0 0" xyz="0.088 0 0"/>
+      <parent link="link6"/>
+      <child link="link7"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="12" lower="-2.8973" upper="2.8973" velocity="2.6100"/>
+    </joint>
+
+    <link name="link8">
+      <xacro:default_inertial mass="0.1"/>
+      <collision>
+        <origin xyz="0.0424 0.0424 -0.0250" rpy="${pi} ${pi/2} ${pi/2}"/>
+        <geometry>
+          <cylinder radius="${0.03+0}"  length="0.01" />
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0.0424 0.0424 -0.02" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${0.03+0}"  />
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0.0424 0.0424 -0.03" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${0.03+0}"  />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="joint8" type="fixed">
+      <origin rpy="0 0 0" xyz="0 0 0.107"/>
+      <parent link="link7"/>
+      <child link="link8"/>
+      <limit effort="12" lower="-2.8973" upper="2.8973" velocity="2.6100"/>
+    </joint>
+
+    <link name="hand">
+      <!-- <xacro:default_inertial mass="0.1"/> -->
+      <inertial>
+        <origin rpy="0 0 0" xyz="-6.7624e-06 0.00152435 0.0275912"/>
+        <mass value="0.14060765127978503"/>
+        <inertia ixx="0.0005365450414352072" ixy="1.7911952957732454e-08" ixz="-2.320071910601251e-08" iyy="7.70511954783727e-05" iyz="4.681149945315967e-08" izz="0.0004938176882694914"/>
+      </inertial>
+      <visual>
+          <geometry>
+            <mesh filename="package://lnfranka_description/meshes/hand.dae"/>
+          </geometry>
+        </visual>
+      <!-- <collision>
+        <origin xyz="0 0 0.04" rpy="0 ${pi/2} ${pi/2}"/>
+        <geometry>
+          <cylinder radius="${0.04+safety_distance}" length="0.1"/>
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 -0.05 0.04" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${0.04+safety_distance}"/>
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0.05 0.04" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${0.04+safety_distance}"/>
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0 0.1" rpy="0 ${pi/2} ${pi/2}"/>
+        <geometry>
+          <cylinder radius="${0.02+safety_distance}" length="0.1"/>
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 -0.05 0.1" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${0.02+safety_distance}"/>
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0.05 0.1" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${0.02+safety_distance}"/>
+        </geometry>
+      </collision> -->
+    </link>
+
+    <joint name="hand_joint" type="fixed">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <parent link="link8"/>
+      <child link="hand"/>
+    </joint>    
+
+
+    <!-- Define the hand_tcp frame -->
+    <link name="hand_tcp">
+    </link>
+
+    <joint name="hand_tcp_joint" type="fixed">
+      <origin xyz="0 0 0.1034" rpy="0 0 0"/>
+      <parent link="hand"/>
+      <child link="hand_tcp"/>
+      <!-- <limit effort="12" lower="-2.8973" upper="2.8973" velocity="2.6100"/> -->
+    </joint>
+
+    <link name="leftfinger">
+      <!-- <xacro:default_inertial mass="0.1"/> -->
+      <inertial>
+        <origin rpy="0 0 0" xyz="-6.2561e-06 0.00227781 -0.0277116"/>
+        <mass value="0.2238453537819424"/>
+        <inertia ixx="6.74804167363695e-05" ixy="-4.1027443646025676e-09" ixz="1.8693673970152995e-08" iyy="6.627189221641395e-05" iyz="1.1967548474390802e-05" izz="1.550396267804825e-05"/>
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="package://lnfranka_description/meshes/finger.dae"/>
+        </geometry>
+      </visual>
+    </link>
+    <link name="rightfinger">
+      <!-- <xacro:default_inertial mass="0.1"/> -->
+      <inertial>
+        <origin rpy="0 0 3.141592653589793" xyz="-6.2561e-06 0.00227781 -0.0277116"/>
+        <mass value="0.2238453537819424"/>
+        <inertia ixx="6.74804167363695e-05" ixy="-4.1027443646025676e-09" ixz="1.8693673970152995e-08" iyy="6.627189221641395e-05" iyz="1.1967548474390802e-05" izz="1.550396267804825e-05"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 ${pi}"/>
+        <geometry>
+          <mesh filename="package://lnfranka_description/meshes/finger.dae"/>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="finger_joint1" type="prismatic">
+      <parent link="hand"/>
+      <child link="leftfinger"/>
+      <origin xyz="0 0 0.0584" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit effort="20" lower="0.0" upper="0.04" velocity="0.2"/>
+    </joint>
+    <joint name="finger_joint2" type="prismatic">
+      <parent link="hand"/>
+      <child link="rightfinger"/>
+      <origin xyz="0 0 0.0584" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit effort="20" lower="-0.04" upper="0.0" velocity="0.2"/>
+      <mimic joint="finger_joint1" multiplier="-1"/>
+    </joint>
+
+    <gazebo reference="link0">
+      <material>Gazebo/Orange</material>
+    </gazebo>
+    <gazebo reference="link1">
+      <material>Gazebo/Green</material>
+    </gazebo>
+    <gazebo reference="link2">
+      <material>Gazebo/Orange</material>
+    </gazebo>
+    <gazebo reference="link3">
+      <material>Gazebo/White</material>
+    </gazebo>
+    <gazebo reference="link4">
+      <material>Gazebo/Yellow</material>
+    </gazebo>
+    <gazebo reference="link5">
+      <material>Gazebo/White</material>
+    </gazebo>
+    <gazebo reference="link6">
+      <material>Gazebo/Green</material>
+    </gazebo>
+    <gazebo reference="link7">
+      <material>Gazebo/Orange</material>
+    </gazebo>    
+    <gazebo reference="link8">
+      <material>Gazebo/White</material>
+    </gazebo>
+    <gazebo reference="hand">
+      <material>Gazebo/Yellow</material>
+    </gazebo>
+    <gazebo reference="rightfinger">
+      <material>Gazebo/Red</material>
+    </gazebo>
+    <gazebo reference="leftfinger">
+      <material>Gazebo/Red</material>
+    </gazebo>  
+
+    <!-- Transmissions-->
+    <xacro:default_transmission number="1"/>
+    <xacro:default_transmission number="2"/>
+    <xacro:default_transmission number="3"/>
+    <xacro:default_transmission number="4"/>
+    <xacro:default_transmission number="5"/>
+    <xacro:default_transmission number="6"/>
+    <xacro:default_transmission number="7"/>
+    <xacro:default_transmission number="8"/>   
+
+
+</robot>
